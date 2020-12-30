@@ -13,11 +13,6 @@
     /*  Defines path names and sets some key preferences
     */
 
-* dependencies
-	* add required packages/commands
-    local ssc_install   "blindschemes.sthlp estout reghdfe ftools"
-    local userpack      "StataConfig"
-
 * TO DO:
     *
 
@@ -42,11 +37,17 @@
 * 1 - Sub-directory globals
 * **********************************************************************
 * Create some sub-folder globals
-    global projectFolder          "$myDocs/ProjectName"
+    global projectFolder          "$myDocs/MyTemplate"
     global dataWork               "${projectFolder}/dataWork"
     global data                   "${dataWork}/data"
     global scripts                "${dataWork}/scripts"
     global logs                   "${scripts}/logs"
+
+* Also create those directories if they don't exist already
+    qui: capture mkdir      "${dataWork}"
+    qui: capture mkdir      "${data}"
+    qui: capture mkdir      "${scripts}"
+    qui: capture mkdir      "${logs}"
 
 * **********************************************************************
 * 2 - Change ado directory so packages get installed in
@@ -54,6 +55,8 @@
 * **********************************************************************
 * Create ado folder if it doesn't exist
     qui: capture mkdir      "${scripts}/ado"
+    qui: capture mkdir      "${scripts}/ado/personal"
+    qui: capture mkdir      "${scripts}/ado/plus"
 
 * Storing packages here ensures that the project is replicable
 * without requiring an internet connection
@@ -80,7 +83,6 @@
     qui: capture mkdir  "${logs}"
     cap log             close
     log using           "${logs}/logfile`cdate'.log", replace text
-
 
 * Note which flavor of Stata
     local variant = cond(c(MP),"MP",cond(c(SE),"SE",c(flavor)) )
