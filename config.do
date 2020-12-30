@@ -6,13 +6,11 @@
 
 * Note: root folder set in Section 0
 *       edit $user    in line 28
-*       edit $myDocs  in line 30  
+*       edit $myDocs  in line 30
 *
 * **********************************************************************
 * does
     /*  Defines path names and sets some key preferences
-        Installs dependencies (user-written Stata programs)
-        in a local directory
     */
 
 * dependencies
