@@ -1,15 +1,17 @@
 * **********************************************************************
-* Project:          Media & Motivation
-* Created:          20201007
-* Last modified:    20201007 by et
+* Project:          Project
+* Created:
+* Last modified:
 * Stata v.16.1
 
-* Note: file directory is set in section 0
-* users only need to change the location of their path there
-* or their initials
+* Note: root folder set in Section 0
+*       edit $user    in line 28
+*       edit $myDocs  in line 30  
+*
 * **********************************************************************
 * does
-    /*  Installs dependencies (user-written Stata programs)
+    /*  Defines path names and sets some key preferences
+        Installs dependencies (user-written Stata programs)
         in a local directory
     */
 
@@ -22,49 +24,75 @@
     *
 
 * **********************************************************************
-* 0 - Run config file to establish path names
+* 0 - Define root folder globals
 * **********************************************************************
-    /* include "config.do" */
-
-* **********************************************************************
-* 1 - Decide if you want to update ado files (otherwise set adoUpdate to 0)
-* **********************************************************************
-* Set $adoUpdate to 0 to skip updating ado files
-        global adoUpdate    1
-
-* **********************************************************************
-* 2 - Check if required packages are installed
-* **********************************************************************
-* Packages from SSC
-    foreach package in `ssc_install' {
-    	capture : which `package', all
-    	if (_rc) {
-            capture window stopbox rusure "You are missing some packages." "Do you want to install `package'?"
-            if _rc == 0 {
-                quietly capture ssc install `package', replace
-                if (_rc) {
-                    window stopbox rusure `"This package is not on SSC. Do you want to proceed without it?"'
-                }
-            }
-            else {
-                exit 199
-            }
-    	}
+    if "$user" == "et" {
+        global myDocs "C:/Users/`c(username)'/Desktop/git"
+		if "`c(username)'"=="btje4229" {
+			global dropbox ///
+			"C:/Users/`c(username)'/Dropbox (Personal)"
+		}
+		else{
+			global dropbox "C:/Users/Emilia/Dropbox"
+		}
+    }
+    if "$user" == "yourName" {
+        global myDocs  "~/Dropbox"
     }
 
-* My custom save ado file
-	which StataConfig
-	if _rc != 0 {
-        capture window stopbox rusure "You are missing some packages." "Do you want to install StataConfig?"
-        if _rc == 0 {
-            qui: net install StataConfig, replace from(https://raw.githubusercontent.com/etjernst/Materials/master/stata/)
-        }
-        else {
-        	exit 199
-        }
-	}
+* **********************************************************************
+* 1 - Sub-directory globals
+* **********************************************************************
+* Create some sub-folder globals
+    global projectFolder          "$myDocs/ProjectName"
+    global dataWork               "${projectFolder}/dataWork"
+    global data                   "${dataWork}/data"
+    global scripts                "${dataWork}/scripts"
+    global logs                   "${scripts}/logs"
 
-* Update all ado files
-    if $adoUpdate == 1 {
-        ado update, update
-    }
+* **********************************************************************
+* 2 - Change ado directory so packages get installed in
+*     a project-specific directory
+* **********************************************************************
+* Create ado folder if it doesn't exist
+    qui: capture mkdir      "${scripts}/ado"
+
+* Storing packages here ensures that the project is replicable
+* without requiring an internet connection
+    sysdir set PERSONAL     "${scripts}/ado/personal"
+    sysdir set PLUS         "${scripts}/ado/plus"
+
+* **********************************************************************
+* 3 - Set preferences
+* **********************************************************************
+* Set varabbrev off
+    set varabbrev       off
+    set more            off
+    set logtype         text    // so logs can be opened without Stata
+
+* **********************************************************************
+* 4 - Start log file
+* **********************************************************************
+* String with current date
+    local c_date    = c(current_date)
+    local cdate     = subinstr("`c_date'", " ", "_", .)
+
+* Start log file
+    * generate log folder if it doesn't exist
+    qui: capture mkdir  "${logs}"
+    cap log             close
+    log using           "${logs}/logfile`cdate'.log", replace text
+
+
+* Note which flavor of Stata
+    local variant = cond(c(MP),"MP",cond(c(SE),"SE",c(flavor)) )
+
+* Include in log file info on how and when program was run
+    di "=== SYSTEM DIAGNOSTICS ==="
+    di "Stata version: `c(stata_version)'"
+    di "Updated as of: `c(born_date)'"
+    di "Variant:       `variant'"
+    di "Processors:    `c(processors)'"
+    di "OS:            `c(os)' `c(osdtl)'"
+    di "Machine type:  `c(machine_type)'"
+    di "=========================="
