@@ -5,8 +5,8 @@
 * Stata v.16.1
 
 * Note: root folder set in Section 0
-*       edit $user    in line 28
-*       edit $myDocs  in line 30
+*       edit $user    in line XX
+*       edit $myDocs  in line XX
 *
 * **********************************************************************
 * does
@@ -82,7 +82,7 @@
     * generate log folder if it doesn't exist
     qui: capture mkdir  "${logs}"
     cap log             close
-    log using           "${logs}/logfile`cdate'.log", replace text
+    log using           "${logs}/logfile_`cdate'.log", replace text
 
 * Note which flavor of Stata
     local variant = cond(c(MP),"MP",cond(c(SE),"SE",c(flavor)) )
